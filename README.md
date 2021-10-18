@@ -1,2 +1,3 @@
-# ekw_to_pg
- EKW do bazy
+# EKW processing
+
+Przetwarzanie XML z Ksiąg dla LP
