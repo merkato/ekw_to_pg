@@ -85,12 +85,15 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
             opisdzialki['przylaczenie'] = ' '
         #cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s)", (list(opisdzialki.values())))
 
-    """ Przygotuj dane dla rubryki R2.2 księgi
+    """ Przygotuj dane dla rubryki R2.2 księgi """
     try:
+        opiswlasciela = collections.OrderedDict()
         for skarb in doc['KW']['D2']['R22']['PR2']['E']['SP']['I']['N']:
-           wlasciciel = 'sp'
-           wlasnosc = skarb['@Tr']
-           cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
+            opiswlasciela['kw'] = kw
+            opiswlasciela['wlasnosc'] = skarb['@Tr']
+            opiswlasciela['wlasciciel'] = 'sp'
+            print(kw + " - Skarb Państwa")
+            cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
     except:
        try:
            zarzadnazwisko = doc['KW']['D2']['R22']['PR5']['E']['OF']['N1']['@Tr']
@@ -102,8 +105,6 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
            cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
        except:
            print(kw + " - Nie odnalazłem poprawnie rubryk w R2.2")
-     """
-
 conn.commit()
 cur.close()
 conn.close()
