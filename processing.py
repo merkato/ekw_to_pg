@@ -35,7 +35,33 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
     except:
         dotychczasowakw = ' '
 #Zapisz do bazy numer i stan księgi
-    cur.execute("INSERT INTO ekw.r02 VALUES(%s, %s, %s, %s, %s)", (kw, stankw, zapisaniekw, ujawnieniekw, dotychczasowakw))
+    #cur.execute("INSERT INTO ekw.r02 VALUES(%s, %s, %s, %s, %s)", (kw, stankw, zapisaniekw, ujawnieniekw, dotychczasowakw))
+
+    """ Przygotuj rubrykę 1.3 w dziale I-O położenie nieruchomości - uwaga, jeszcze nie dziala"""
+    opispolozenia= collections.OrderedDict()
+    for polozenie in guaranteed_list(doc['KW']['D1o']['R13']['E']):
+        opispolozenia['kw'] = kw
+        try:
+            opispolozenia['lp'] = polozenie['P1']['@Tr']
+        except:
+            opispolozenia['lp'] = ' '
+        try:
+            opispolozenia['wojewodztwo'] = polozenie['P2']['@Tr']
+        except:
+            opispolozenia['wojewodztwo'] = ' '
+        try:
+            opispolozenia['powiat'] = polozenie['P3']['@Tr']
+        except:
+            opispolozenia['powiat'] = ' '
+        try:
+            opispolozenia['gmina'] = polozenie['P4']['@Tr']
+        except:
+            opispolozenia['gmina'] = ' '
+        try:
+            opispolozenia['miejscowosc'] = polozenie['P5']['@Tr']
+        except:
+            opispolozenia['miejscowosc'] = ' '
+        #cur.execute("INSERT INTO ekw.d1or13 VALUES(%s, %s, %s, %s, %s, %s)", (list(opispolozenia.values())))
 
     """ Przygotuj rubrykę 1.4 podrubrykę 1.4.1 oznaczenie działki  """
     opisdzialki= collections.OrderedDict()
@@ -57,7 +83,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
             opisdzialki['przylaczenie'] = oznaczenie['P7']['A']['@Wk'] + '/' + oznaczenie['P7']['A']['@Nr'] + '/' + oznaczenie['P7']['A']['@Ck']
         except:
             opisdzialki['przylaczenie'] = ' '
-        cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s)", (list(opisdzialki.values())))
+        #cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s)", (list(opisdzialki.values())))
 
     """ Przygotuj dane dla rubryki R2.2 księgi
     try:
@@ -77,33 +103,6 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
        except:
            print(kw + " - Nie odnalazłem poprawnie rubryk w R2.2")
      """
-""" Przygotuj rubrykę 1.3 w dziale I-O położenie nieruchomości
-
-for polozenie in guaranteed_list(doc['KW']['D1o']['R13']):
-   try:
-      lp = polozenie['P1']['@Tr']
-   except:
-      lp = ' '
-   try:
-      wojewodztwo = polozenie['P2']['@Tr']
-   except:
-      wojewodztwo = ' '
-   try:
-      powiat = polozenie['P3']['@Tr']
-   except:
-      powiat = ' '
-   try:
-      gmina = polozenie['P4']['@Tr']
-   except:
-      gmina = ' '
-   try:
-      miejscowosc = polozenie['P5']['@Tr']
-   except:
-      miejscowosc = ' '
-   cur.execute("INSERT INTO ekw.d1or13 VALUES(%s, %s, %s, %s, %s, %s)", (kw, lp, wojewodztwo, powiat, gmina
-   , miejscowosc))"""
-
-
 
 conn.commit()
 cur.close()
