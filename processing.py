@@ -72,10 +72,13 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
         except:
             opisdzialki['iddzialki'] = 'XX'
         try:
-            opisdzialki['numerdzialki'] = oznaczenie['P2']['@Tr']
+            nrdzialki = collections.OrderedDict()
+            for nr in guaranteed_list(oznaczenie['P2']['@Tr']):
+                nrdzialki['dzew'] = nr
+            opisdzialki['numerdzialki'] = nrdzialki['dzew']
         except:
             opisdzialki['numerdzialki'] = 'nie wpisałem poprawnego - sprawdź'
-   	try:
+        try:
             opisdzialki['sposobko'] = oznaczenie['P6']['@Tr']
         except:
             opisdzialki['sposobko'] = 'XX'
@@ -86,15 +89,17 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
         try:
             opisdzialki['lpn'] = oznaczenie['P4']['E']['@Tr']
         except:
-            opisdzialki['lpn'] = 'nie wpisałem poprawnego - sprawdź' 
-        #cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s, %s)", (list(opisdzialki.values())))
+            opisdzialki['lpn'] = 'nie wpisałem poprawnego - sprawdź'
+        cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s, %s)", (list(opisdzialki.values())))
 
     """ Przygotuj dane dla rubryki R2.2 księgi """
     try:
 # Tylko jedna rubryka PR2 E - szukamy w instytucjach jednego właściciela
-        wlasnosc = doc['KW']['D2']['R22']['PR2']['E']['SP']['I']['N']['@Tr']
-        wlasciciel = 'sp'
-        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
+        opiswlasciciela = collections.OrderedDict()
+        opiswlasciciela['kw'] = kw
+        opiswlasciciela['zarzad'] = doc['KW']['D2']['R22']['PR2']['E']['SP']['I']['N']['@Tr']
+        opiswlasciciela['wlasciciel'] = 'sp - więcej wpisów'
+        #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
     except:
         try:
 # Szukamy dwóch i więcej właścieili SP
@@ -103,7 +108,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
                 opiswlasciciela['kw'] = kw
                 opiswlasciciela['zarzad'] = skarb['@Tr']
                 opiswlasciciela['wlasciciel'] = 'sp - więcej wpisów'
-                cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+                #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
         except:
             try:
 # Wiele rubryk PR2 E - szukamy w instytucjach
@@ -112,7 +117,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
                     opiswlasciciela['kw'] = kw
                     opiswlasciciela['zarzad'] = skarb['SP']['I']['N']['@Tr']
                     opiswlasciciela['wlasciciel'] = 'sp - wpisy w wielu rubrykach'
-                    cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+                    #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
             except:
                 try:
 # Rubryka PR3 E - szukamy w instytucjach JST
@@ -121,7 +126,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
                         opiswlasciciela['kw'] = kw
                         opiswlasciciela['zarzad'] = skarb['@Tr']
                         opiswlasciciela['wlasciciel'] = 'jst'
-                        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+                        #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
                 except:
                     try:
 # Runryka PR5 - szukamy osób fizycznych
@@ -129,7 +134,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
                         zarzadimie = doc['KW']['D2']['R22']['PR5']['E']['OF']['I1']['@Tr']
                         wlasnosc = zarzadnazwisko + ' ' + zarzadimie
                         wlasciciel = 'of'
-                        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
+                        #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
                     except:
                         print(kw + " - Nie odnalazłem poprawnie rubryk w R2.2")
 conn.commit()
