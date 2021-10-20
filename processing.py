@@ -37,7 +37,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
 #Zapisz do bazy numer i stan księgi
     #cur.execute("INSERT INTO ekw.r02 VALUES(%s, %s, %s, %s, %s)", (kw, stankw, zapisaniekw, ujawnieniekw, dotychczasowakw))
 
-    """ Przygotuj rubrykę 1.3 w dziale I-O położenie nieruchomości - uwaga, jeszcze nie dziala"""
+    """ Przygotuj rubrykę 1.3 w dziale I-O położenie nieruchomości"""
     opispolozenia= collections.OrderedDict()
     for polozenie in guaranteed_list(doc['KW']['D1o']['R13']['E']):
         opispolozenia['kw'] = kw
@@ -87,41 +87,47 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
 
     """ Przygotuj dane dla rubryki R2.2 księgi """
     try:
-        opiswlasciciela = collections.OrderedDict()
-        for skarb in doc['KW']['D2']['R22']['PR2']['E']['SP']['I']['N']:
-            opiswlasciciela['kw'] = kw
-# Tylko jedna rubryka PR2 E - szukamy w instytucjach
-            opiswlasciciela['zarzad'] = skarb['@Tr']
-            opiswlasciciela['wlasciciel'] = 'sp'
-            #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+# Tylko jedna rubryka PR2 E - szukamy w instytucjach jednego właściciela
+        wlasnosc = doc['KW']['D2']['R22']['PR2']['E']['SP']['I']['N']['@Tr']
+        wlasciciel = 'sp'
+        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
     except:
         try:
+# Szukamy dwóch i więcej właścieili SP
             opiswlasciciela = collections.OrderedDict()
-            for skarb in doc['KW']['D2']['R22']['PR2']['E']:
+            for skarb in doc['KW']['D2']['R22']['PR2']['E']['SP']['I']['N']:
                 opiswlasciciela['kw'] = kw
-# Wiele rubryk PR2 E - szukamy w instytucjach
-                opiswlasciciela['zarzad'] = skarb['SP']['I']['N']['@Tr']
-                opiswlasciciela['wlasciciel'] = 'sp'
+                opiswlasciciela['zarzad'] = skarb['@Tr']
+                opiswlasciciela['wlasciciel'] = 'sp - więcej wpisów'
                 cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
         except:
             try:
+# Wiele rubryk PR2 E - szukamy w instytucjach
                 opiswlasciciela = collections.OrderedDict()
-                for skarb in doc['KW']['D2']['R22']['PR3']['E']['JT']['I']['N']:
+                for skarb in doc['KW']['D2']['R22']['PR2']['E']:
                     opiswlasciciela['kw'] = kw
-# Rubryka PR3 E - szukamy w instytucjach
-                    opiswlasciciela['zarzad'] = skarb['@Tr']
-                    opiswlasciciela['wlasciciel'] = 'jst'
-                    print(kw + " - JST")
-                    #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+                    opiswlasciciela['zarzad'] = skarb['SP']['I']['N']['@Tr']
+                    opiswlasciciela['wlasciciel'] = 'sp - wpisy w wielu rubrykach'
+                    cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
             except:
                 try:
-                    zarzadnazwisko = doc['KW']['D2']['R22']['PR5']['E']['OF']['N1']['@Tr']
-                    zarzadimie = doc['KW']['D2']['R22']['PR5']['E']['OF']['I1']['@Tr']
-                    wlasnosc = zarzadnazwisko + ' ' + zarzadimie
-                    wlasciciel = 'of'
-                    #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
+# Rubryka PR3 E - szukamy w instytucjach JST
+                    opiswlasciciela = collections.OrderedDict()
+                    for skarb in doc['KW']['D2']['R22']['PR3']['E']['JT']['I']['N']:
+                        opiswlasciciela['kw'] = kw
+                        opiswlasciciela['zarzad'] = skarb['@Tr']
+                        opiswlasciciela['wlasciciel'] = 'jst'
+                        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
                 except:
-                    print(kw + " - Nie odnalazłem poprawnie rubryk w R2.2")
+                    try:
+# Runryka PR5 - szukamy osób fizycznych
+                        zarzadnazwisko = doc['KW']['D2']['R22']['PR5']['E']['OF']['N1']['@Tr']
+                        zarzadimie = doc['KW']['D2']['R22']['PR5']['E']['OF']['I1']['@Tr']
+                        wlasnosc = zarzadnazwisko + ' ' + zarzadimie
+                        wlasciciel = 'of'
+                        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
+                    except:
+                        print(kw + " - Nie odnalazłem poprawnie rubryk w R2.2")
 conn.commit()
 cur.close()
 conn.close()
