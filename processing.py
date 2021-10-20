@@ -93,7 +93,6 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
 # Tylko jedna rubryka PR2 E - szukamy w instytucjach
             opiswlasciciela['zarzad'] = skarb['@Tr']
             opiswlasciciela['wlasciciel'] = 'sp'
-            print("Jedna rubryka E: " + kw + " - " + opiswlasciciela['zarzad'])
             #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
     except:
         try:
@@ -103,19 +102,26 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
 # Wiele rubryk PR2 E - szukamy w instytucjach
                 opiswlasciciela['zarzad'] = skarb['SP']['I']['N']['@Tr']
                 opiswlasciciela['wlasciciel'] = 'sp'
-                print("Wiele rubryk E: " + kw + " - " + opiswlasciciela['zarzad'])
-                #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+                cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
         except:
             try:
-               zarzadnazwisko = doc['KW']['D2']['R22']['PR5']['E']['OF']['N1']['@Tr']
-               zarzadimie = doc['KW']['D2']['R22']['PR5']['E']['OF']['I1']['@Tr']
-               wlasnosc = zarzadnazwisko + ' ' + zarzadimie
-               wlasciciel = 'of'
-#TODO: Dodaj wiele wierszy nazwy osoby fizycznej N1
-               print(kw + " - Osoba fizyczna")
-               cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
+                opiswlasciciela = collections.OrderedDict()
+                for skarb in doc['KW']['D2']['R22']['PR3']['E']['JT']['I']['N']:
+                    opiswlasciciela['kw'] = kw
+# Rubryka PR3 E - szukamy w instytucjach
+                    opiswlasciciela['zarzad'] = skarb['@Tr']
+                    opiswlasciciela['wlasciciel'] = 'jst'
+                    print(kw + " - JST")
+                    #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
             except:
-               print(kw + " - Nie odnalazłem poprawnie rubryk w R2.2")
+                try:
+                    zarzadnazwisko = doc['KW']['D2']['R22']['PR5']['E']['OF']['N1']['@Tr']
+                    zarzadimie = doc['KW']['D2']['R22']['PR5']['E']['OF']['I1']['@Tr']
+                    wlasnosc = zarzadnazwisko + ' ' + zarzadimie
+                    wlasciciel = 'of'
+                    #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
+                except:
+                    print(kw + " - Nie odnalazłem poprawnie rubryk w R2.2")
 conn.commit()
 cur.close()
 conn.close()
