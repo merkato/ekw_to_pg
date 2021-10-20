@@ -33,7 +33,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
     try:
         dotychczasowakw = doc['KW']['R02']['P4']['@Tr']
     except:
-        dotychczasowakw = ' '
+        dotychczasowakw = 'brak'
 #Zapisz do bazy numer i stan księgi
     #cur.execute("INSERT INTO ekw.r02 VALUES(%s, %s, %s, %s, %s)", (kw, stankw, zapisaniekw, ujawnieniekw, dotychczasowakw))
 
@@ -44,23 +44,23 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
         try:
             opispolozenia['lp'] = polozenie['P1']['@Tr']
         except:
-            opispolozenia['lp'] = ' '
+            opispolozenia['lp'] = 'XX'
         try:
             opispolozenia['wojewodztwo'] = polozenie['P2']['@Tr']
         except:
-            opispolozenia['wojewodztwo'] = ' '
+            opispolozenia['wojewodztwo'] = 'XX'
         try:
             opispolozenia['powiat'] = polozenie['P3']['@Tr']
         except:
-            opispolozenia['powiat'] = ' '
+            opispolozenia['powiat'] = 'XX'
         try:
             opispolozenia['gmina'] = polozenie['P4']['@Tr']
         except:
-            opispolozenia['gmina'] = ' '
+            opispolozenia['gmina'] = 'XX'
         try:
             opispolozenia['miejscowosc'] = polozenie['P5']['@Tr']
         except:
-            opispolozenia['miejscowosc'] = ' '
+            opispolozenia['miejscowosc'] = 'XX'
         #cur.execute("INSERT INTO ekw.d1or13 VALUES(%s, %s, %s, %s, %s, %s)", (list(opispolozenia.values())))
 
     """ Przygotuj rubrykę 1.4 podrubrykę 1.4.1 oznaczenie działki  """
@@ -70,19 +70,19 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
         try:
             opisdzialki['iddzialki'] = oznaczenie['P1']['@Tr']
         except:
-            opisdzialki['iddzialki'] = ' '
+            opisdzialki['iddzialki'] = 'XX'
         try:
             opisdzialki['numerdzialki'] = oznaczenie['P2']['@Tr']
         except:
-            opisdzialki['numerdzialki'] = ' '
+            opisdzialki['numerdzialki'] = 'nie wpisałem poprawnego - sprawdź'
         try:
             opisdzialki['sposobko'] = oznaczenie['P6']['@Tr']
         except:
-            opisdzialki['sposobko'] = ' '
+            opisdzialki['sposobko'] = 'XX'
         try:
             opisdzialki['przylaczenie'] = oznaczenie['P7']['A']['@Wk'] + '/' + oznaczenie['P7']['A']['@Nr'] + '/' + oznaczenie['P7']['A']['@Ck']
         except:
-            opisdzialki['przylaczenie'] = ' '
+            opisdzialki['przylaczenie'] = 'XX'
         #cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s)", (list(opisdzialki.values())))
 
     """ Przygotuj dane dla rubryki R2.2 księgi """
@@ -90,7 +90,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
         opiswlasciela = collections.OrderedDict()
         for skarb in doc['KW']['D2']['R22']['PR2']['E']['SP']['I']['N']:
             opiswlasciela['kw'] = kw
-            opiswlasciela['wlasnosc'] = skarb['@Tr']
+            opiswlasciela['zarzad'] = skarb['@Tr']
             opiswlasciela['wlasciciel'] = 'sp'
             print(kw + " - Skarb Państwa")
             cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
