@@ -76,6 +76,10 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
         except:
             opisdzialki['numerdzialki'] = 'nie wpisałem poprawnego - sprawdź'
         try:
+            opisdzialki['lpn'] = oznaczenie['P4']['E']['@Tr']
+        except:
+            opisdzialki['lpn'] = 'nie wpisałem poprawnego - sprawdź'        
+	try:
             opisdzialki['sposobko'] = oznaczenie['P6']['@Tr']
         except:
             opisdzialki['sposobko'] = 'XX'
@@ -83,7 +87,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
             opisdzialki['przylaczenie'] = oznaczenie['P7']['A']['@Wk'] + '/' + oznaczenie['P7']['A']['@Nr'] + '/' + oznaczenie['P7']['A']['@Ck']
         except:
             opisdzialki['przylaczenie'] = 'XX'
-        #cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s)", (list(opisdzialki.values())))
+        #cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s, %s)", (list(opisdzialki.values())))
 
     """ Przygotuj dane dla rubryki R2.2 księgi """
     try:
