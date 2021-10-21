@@ -35,7 +35,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
     except:
         dotychczasowakw = 'brak'
 #Zapisz do bazy numer i stan księgi
-    #cur.execute("INSERT INTO ekw.r02 VALUES(%s, %s, %s, %s, %s)", (kw, stankw, zapisaniekw, ujawnieniekw, dotychczasowakw))
+    cur.execute("INSERT INTO ekw.r02 VALUES(%s, %s, %s, %s, %s)", (kw, stankw, zapisaniekw, ujawnieniekw, dotychczasowakw))
 
     """ Przygotuj rubrykę 1.3 w dziale I-O położenie nieruchomości"""
     opispolozenia= collections.OrderedDict()
@@ -61,7 +61,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
             opispolozenia['miejscowosc'] = polozenie['P5']['@Tr']
         except:
             opispolozenia['miejscowosc'] = 'XX'
-        #cur.execute("INSERT INTO ekw.d1or13 VALUES(%s, %s, %s, %s, %s, %s)", (list(opispolozenia.values())))
+        cur.execute("INSERT INTO ekw.d1or13 VALUES(%s, %s, %s, %s, %s, %s)", (list(opispolozenia.values())))
 
     """ Przygotuj rubrykę 1.4 podrubrykę 1.4.1 oznaczenie działki  """
     opisdzialki= collections.OrderedDict()
@@ -99,7 +99,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
         opiswlasciciela['kw'] = kw
         opiswlasciciela['zarzad'] = doc['KW']['D2']['R22']['PR2']['E']['SP']['I']['N']['@Tr']
         opiswlasciciela['wlasciciel'] = 'sp - więcej wpisów'
-        #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
     except:
         try:
 # Szukamy dwóch i więcej właścieili SP
@@ -108,7 +108,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
                 opiswlasciciela['kw'] = kw
                 opiswlasciciela['zarzad'] = skarb['@Tr']
                 opiswlasciciela['wlasciciel'] = 'sp - więcej wpisów'
-                #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+                cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
         except:
             try:
 # Wiele rubryk PR2 E - szukamy w instytucjach
@@ -117,7 +117,7 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
                     opiswlasciciela['kw'] = kw
                     opiswlasciciela['zarzad'] = skarb['SP']['I']['N']['@Tr']
                     opiswlasciciela['wlasciciel'] = 'sp - wpisy w wielu rubrykach'
-                    #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+                    cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
             except:
                 try:
 # Rubryka PR3 E - szukamy w instytucjach JST
@@ -126,15 +126,14 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
                         opiswlasciciela['kw'] = kw
                         opiswlasciciela['zarzad'] = skarb['@Tr']
                         opiswlasciciela['wlasciciel'] = 'jst'
-                        #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+                        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
                 except:
                     try:
 # Runryka PR5 - szukamy osób fizycznych
                         zarzadnazwisko = doc['KW']['D2']['R22']['PR5']['E']['OF']['N1']['@Tr']
-                        zarzadimie = doc['KW']['D2']['R22']['PR5']['E']['OF']['I1']['@Tr']
-                        wlasnosc = zarzadnazwisko + ' ' + zarzadimie
+                        wlasnosc = 'NN - osoba fizyczna'
                         wlasciciel = 'of'
-                        #cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
+                        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
                     except:
                         print(kw + " - Nie odnalazłem poprawnie rubryk w R2.2")
 conn.commit()
