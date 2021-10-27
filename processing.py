@@ -98,50 +98,50 @@ def dzialka(d1or14):
 
 def wlasciciel(d2r22):
     """ Przygotuj dane dla rubryki R2.2 księgi """
-    try:
-# Tylko jedna rubryka PR2 E - szukamy w instytucjach jednego właściciela
-        opiswlasciciela = collections.OrderedDict()
-        opiswlasciciela['kw'] = kw
-        opiswlasciciela['zarzad'] = d2r22['PR2']['E']['SP']['I']['N']['@Tr']
-        opiswlasciciela['wlasciciel'] = 'sp - więcej wpisów'
-        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
-    except:
-        try:
-# Szukamy dwóch i więcej właścieili SP
-            opiswlasciciela = collections.OrderedDict()
-            for skarb in d2r22['PR2']['E']['SP']['I']['N']:
-                opiswlasciciela['kw'] = kw
-                opiswlasciciela['zarzad'] = skarb['@Tr']
-                opiswlasciciela['wlasciciel'] = 'sp - więcej wpisów'
-                cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
-        except:
+    opiswlasciciela = collections.OrderedDict()
+    if d2r22['PR2'] is not None:
+        for skarb in d2r22['PR2']['E']:
+            opiswlasciciela['kw'] = kw
+            opiswlasciciela['zarzad'] = skarb['SP']['I']['N']['@Tr']
+            opiswlasciciela['wlasciciel'] = 'sp - wpisy w wielu rubrykach'
             try:
-# Wiele rubryk PR2 E - szukamy w instytucjach
-                opiswlasciciela = collections.OrderedDict()
-                for skarb in d2r22['PR2']['E']:
-                    opiswlasciciela['kw'] = kw
-                    opiswlasciciela['zarzad'] = skarb['SP']['I']['N']['@Tr']
-                    opiswlasciciela['wlasciciel'] = 'sp - wpisy w wielu rubrykach'
-                    cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
+                opiswlasciciela['wpisi'] = skarb['SP']['I']['N']['I']['#text']
             except:
-                try:
-# Rubryka PR3 E - szukamy w instytucjach JST
-                    opiswlasciciela = collections.OrderedDict()
-                    for skarb in d2r22['PR3']['E']['JT']['I']['N']:
-                        opiswlasciciela['kw'] = kw
-                        opiswlasciciela['zarzad'] = skarb['@Tr']
-                        opiswlasciciela['wlasciciel'] = 'jst'
-                        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (list(opiswlasciciela.values())))
-                except:
-                    try:
-# Runryka PR5 - szukamy osób fizycznych
-                        zarzadnazwisko = d2r22['PR5']['E']['OF']['N1']['@Tr']
-                        wlasnosc = 'NN - osoba fizyczna'
-                        wlasciciel = 'of'
-                        cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s)", (kw, wlasnosc, wlasciciel))
-                    except:
-                        print(kw + " - Nie odnalazłem poprawnie rubryk w R2.2")
-
+                opiswlasciciela['wpisi'] = 'nie znalazłem podstawy wpisu'
+            try:
+                opiswlasciciela['wpisd'] = skarb['SP']['I']['N']['D']['#text']
+            except:
+                opiswlasciciela['wpisd'] = 'nie znalazłem podstawy wykreślenia'
+            cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s, %s, %s, %s)", (list(opiswlasciciela.values())))
+    elif d2r22['PR3'] is not None:
+        for skarb in d2r22['PR3']['E']['JT']['I']['N']:
+            opiswlasciciela['kw'] = kw
+            opiswlasciciela['zarzad'] = skarb['@Tr']
+            opiswlasciciela['wlasciciel'] = 'jst'
+            try:
+                opiswlasciciela['wpisi'] = skarb['SP']['I']['N']['I']['#text']
+            except:
+                opiswlasciciela['wpisi'] = 'nie znalazłem podstawy wpisu'
+            try:
+                opiswlasciciela['wpisd'] = skarb['SP']['I']['N']['D']['#text']
+            except:
+                opiswlasciciela['wpisd'] = 'nie znalazłem podstawy wykreślenia'
+            cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s, %s, %s)", (list(opiswlasciciela.values())))
+    else:
+            zarzadnazwisko = d2r22['PR5']['E']['OF']['N1']['@Tr']
+            opiswlasciciela['kw'] = kw
+            opiswlasciciela['zarzad'] = 'RODO - osoba fizyczna'
+            opiswlasciciela['wlasciciel'] = 'of'
+            try:
+                opiswlasciciela['wpisi'] = d2r22['PR5']['E']['OF']['N1']['I']['#text']
+            except:
+                opiswlasciciela['wpisi'] = 'nie znalazłem podstawy wpisu'
+            try:
+                opiswlasciciela['wpisd'] = d2r22['PR5']['E']['OF']['N1']['D']['#text']
+            except:
+                opiswlasciciela['wpisd'] = 'nie znalazłem podstawy wykreślenia'
+            cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s, %s, %s)", (list(opiswlasciciela.values())))
+    return
 
 try:
     conn = psycopg2.connect("dbname='osm' user='osm' host='localhost' password='osm'")
@@ -157,9 +157,9 @@ for filepath in glob.iglob('c:/ekw/*.xml'):
         cur.execute("INSERT INTO ekw.r02 VALUES(%s, %s, %s, %s, %s, %s)", (list(opisksiegi.values())))
         opispolozenia = polozenie(doc['KW']['D1o']['R13'])
         cur.execute("INSERT INTO ekw.d1or13 VALUES(%s, %s, %s, %s, %s, %s, %s)", (list(opispolozenia.values())))
-        #opisdzialki = dzialka(doc['KW']['D1o']['R14']['PR141'])
-        #cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s, %s)", (list(opisdzialki.values())))
-        #wlasciciel(doc['KW']['D2']['R22'])
+        opisdzialki = dzialka(doc['KW']['D1o']['R14']['PR141'])
+        cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s, %s, %s)", (list(opisdzialki.values())))
+        wlasciciel(doc['KW']['D2']['R22'])
 
 conn.commit()
 cur.close()
