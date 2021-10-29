@@ -99,7 +99,7 @@ def dzialka(d1or14):
 def wlasciciel(d2r22):
     """ Przygotuj dane dla rubryki R2.2 księgi """
     opiswlasciciela = collections.OrderedDict()
-    if d2r22['PR2'] is not None:
+    if d2r22.get('PR2') is not None:
         for skarb in d2r22['PR2']['E']:
             opiswlasciciela['kw'] = kw
             opiswlasciciela['zarzad'] = skarb['SP']['I']['N']['@Tr']
@@ -113,7 +113,7 @@ def wlasciciel(d2r22):
             except:
                 opiswlasciciela['wpisd'] = 'nie znalazłem podstawy wykreślenia'
             cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s, %s, %s, %s)", (list(opiswlasciciela.values())))
-    elif d2r22['PR3'] is not None:
+    if d2r22.get('PR3') is not None:
         for skarb in d2r22['PR3']['E']['JT']['I']['N']:
             opiswlasciciela['kw'] = kw
             opiswlasciciela['zarzad'] = skarb['@Tr']
@@ -127,7 +127,7 @@ def wlasciciel(d2r22):
             except:
                 opiswlasciciela['wpisd'] = 'nie znalazłem podstawy wykreślenia'
             cur.execute("INSERT INTO ekw.d2r22 VALUES(%s, %s, %s, %s, %s)", (list(opiswlasciciela.values())))
-    else:
+    if d2r22.get('PR5') is not None:
             zarzadnazwisko = d2r22['PR5']['E']['OF']['N1']['@Tr']
             opiswlasciciela['kw'] = kw
             opiswlasciciela['zarzad'] = 'RODO - osoba fizyczna'
