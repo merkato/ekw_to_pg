@@ -33,7 +33,6 @@ def stanksiegi(pole2):
         opisksiegi['dotychczasowakw'] = pole2['P4']['@Tr']
     except:
         opisksiegi['dotychczasowakw'] = 'brak'
-    opisksiegi['znacznikczasu'] = dt.datetime.now()
 #Zapisz do bazy numer i stan księgi
     return opisksiegi
 
@@ -62,7 +61,6 @@ def polozenie(d1or13):
             opispolozenia['miejscowosc'] = polozenie['P5']['@Tr']
         except:
             opispolozenia['miejscowosc'] = 'XX'
-        opispolozenia['znacznikczasu'] = dt.datetime.now()
     return opispolozenia
 
 def dzialka(d1or14):
@@ -93,7 +91,6 @@ def dzialka(d1or14):
             opisdzialki['lpn'] = oznaczenie['P4']['E']['@Tr']
         except:
             opisdzialki['lpn'] = 'nie wpisałem poprawnego - sprawdź'
-        opisdzialki['znacznikczasu'] = dt.datetime.now()
     return opisdzialki
 
 def wlasciciel(d2r22):
@@ -149,17 +146,17 @@ except:
     print("Blad polaczenia z baza")
 cur = conn.cursor()
 
-for filepath in glob.iglob('c:/ekw/*.xml'):
+for filepath in glob.iglob('d:/gis/lasy/kw/*.xml'):
     with open(filepath) as fd:
         doc = xmltodict.parse(fd.read())
         kw = numerksiegi(doc['KW']['R01']['P1'])
         opisksiegi = stanksiegi(doc['KW']['R02'])
-        cur.execute("INSERT INTO ekw.r02 VALUES(%s, %s, %s, %s, %s, %s)", (list(opisksiegi.values())))
+        cur.execute("INSERT INTO ekw.r02 VALUES(%s, %s, %s, %s, %s)", (list(opisksiegi.values())))
         opispolozenia = polozenie(doc['KW']['D1o']['R13'])
-        cur.execute("INSERT INTO ekw.d1or13 VALUES(%s, %s, %s, %s, %s, %s, %s)", (list(opispolozenia.values())))
+        cur.execute("INSERT INTO ekw.d1or13 VALUES(%s, %s, %s, %s, %s, %s)", (list(opispolozenia.values())))
         opisdzialki = dzialka(doc['KW']['D1o']['R14']['PR141'])
-        cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s, %s, %s)", (list(opisdzialki.values())))
-        wlasciciel(doc['KW']['D2']['R22'])
+        cur.execute("INSERT INTO ekw.d1or14 VALUES(%s, %s, %s, %s, %s, %s)", (list(opisdzialki.values())))
+        #wlasciciel(doc['KW']['D2']['R22'])
 
 conn.commit()
 cur.close()

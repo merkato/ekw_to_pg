@@ -10,6 +10,7 @@ CREATE TABLE ekw.r02 (
 	zapisaniekw varchar NULL,
 	ujawnieniekw varchar NULL,
 	dotychczasowakw varchar NULL,
+	znacznikczasu timestamptz default now(),
 	CONSTRAINT r02_pk PRIMARY KEY (kw)
 );
 
@@ -27,6 +28,7 @@ CREATE TABLE ekw.d1or13 (
 	powiat varchar NULL,
 	gmina varchar NULL,
 	miejscowosc varchar NULL,
+	znacznikczasu timestamptz default now(),
 	CONSTRAINT d1or13_fk FOREIGN KEY (kw) REFERENCES ekw.r02(kw)
 );
 
@@ -44,6 +46,7 @@ CREATE TABLE ekw.d1or14 (
 	sposobko varchar NULL,
 	przylaczenie varchar NULL,
 	lpn varchar NULL,
+	znacznikczasu timestamptz default now(),
 	CONSTRAINT d1or14_fk FOREIGN KEY (kw) REFERENCES ekw.r02(kw)
 );
 
